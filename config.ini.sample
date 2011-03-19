@@ -1,0 +1,15 @@
+; SIPwPing configuration
+;
+[General]
+
+; Local SIP UDP port to use
+; sip_udp_port =
+
+; Local SIP TCP port to use
+; sip_tcp_port =
+;
+
+; Local port in which to listen for HTTP requests
+; http_port = 8888
+
+
