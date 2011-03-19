@@ -1,0 +1,19 @@
+SIPwPing
+========
+
+SIPwPing is web server which allows you to check is a SIP server is alive
+by using a dead simple RESTful interface. SIPwPing will send a SIP OPTIONS
+request to the specified destination and report back the result in JSON format.
+
+Example:
+
+~$ curl -X POST -d '{"target_uri":"test@sip.voice.google.com"}' http://localhost:8888/options
+{"timestamp": "2011-03-19 19:04:06.879164", "reason": "Request Timeout", "code": 408}
+
+
+Configuration:
+
+The sample configuration file should be just enough for everyone. You may 
+change the local SIP ports (which is not necessary) or the local HTTP port
+in which requests will be processes.
+
