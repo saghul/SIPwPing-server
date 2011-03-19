@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# coding=utf8
+
+# Copyright (C) 2011 Saúl Ibarra Corretgé <saghul@gmail.com>
+#
 
 import os
 import signal

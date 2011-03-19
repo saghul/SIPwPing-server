@@ -1,3 +1,7 @@
+# coding=utf8
+
+# Copyright (C) 2011 Saúl Ibarra Corretgé <saghul@gmail.com>
+#
 
 from __future__ import with_statement
 
