@@ -27,7 +27,8 @@ class SIPOptionsRequestHandler(object):
     def start(self):
         lookup = DNSLookup()
         NotificationCenter().add_observer(self, sender=lookup)
-        lookup.lookup_sip_proxy(self.target_uri, ['udp'])
+        from sipwping.app import SIPOptionsApplication
+        lookup.lookup_sip_proxy(self.target_uri, SIPOptionsApplication().supported_transports)
 
     def _send_options(self):
         notification_center = NotificationCenter()

@@ -19,10 +19,11 @@ class SIPOptionsApplication(object):
     implements(IObserver)
 
     def __init__(self):
-        self.state = None
-        self.reactor_thread = None
         self.http_listener = None
+        self.reactor_thread = None
+        self.state = None
         self.stop_event = Event()
+        self.supported_transports = []
 
     def start(self):
         self.reactor_thread = Thread(name='Reactor Thread', target=self._run_reactor)
@@ -63,9 +64,14 @@ class SIPOptionsApplication(object):
 
     def _NH_SIPEngineDidStart(self, notification):
         self.state = 'started'
+        engine = Engine()
+        for transport in ('udp', 'tcp', 'tls'):
+            if getattr(engine, '%s_port' % transport) is not None:
+                self.supported_transports.append(transport)
         self.http_listener = HTTPListener()
         self.http_listener.start()
         log.msg('SIP Engine started')
+        log.msg('Enabled SIP transports: %s' % ', '.join(transport.upper() for transport in self.supported_transports))
 
     def _NH_SIPEngineDidEnd(self, notification):
         log.msg('SIP Engine stopped')
