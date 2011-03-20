@@ -40,12 +40,15 @@ class OptionsResourceHandler(object):
     implements(IObserver)
 
     def __init__(self, request):
+        self.finished = False
+        request.notifyFinish().addCallbacks(self._responseSucceeded, self._responseFailed)
         jsondata = request.content.getvalue()
         try:
             data = jsonlib.loads(jsondata)
         except (jsonlib.DecodeError, ValueError):
-            request.setResponseCode(400, 'Could not decode JSON data')
-            request.finish()
+            if not self.finished:
+                request.setResponseCode(400, 'Could not decode JSON data')
+                request.finish()
             return
         try:
             target_uri = data.get('target_uri', '')
@@ -53,15 +56,17 @@ class OptionsResourceHandler(object):
                 target_uri = 'sip:%s' % target_uri
             target_uri = SIPURI.parse(target_uri)
         except SIPCoreError:
-            request.setResponseCode(400, 'Supplied SIP URI is invalid')
-            request.finish()
+            if not self.finished:
+                request.setResponseCode(400, 'Supplied SIP URI is invalid')
+                request.finish()
             return
         cache = DataCache()
         data = cache.get(str(target_uri))
         if data is not None:
-            request.setHeader('Content-Type', 'application/json')
-            request.write(jsonlib.dumps(data))
-            request.finish()
+            if not self.finished:
+                request.setHeader('Content-Type', 'application/json')
+                request.write(jsonlib.dumps(data))
+                request.finish()
             return
         self._target_uri = target_uri
         self._request = request
@@ -69,15 +74,23 @@ class OptionsResourceHandler(object):
         NotificationCenter().add_observer(self, sender=self._handler)
         self._handler.start()
 
+    def _responseSucceeded(self, data):
+        self.finished = True
+
+    def _responseFailed(self, failure):
+        # We must not call response.finish() if it has failed
+        self.finished = True
+
     def _send_response(self, notification_data):
         data = notification_data.__dict__.copy()
         timestamp = data.pop('timestamp')
         data['timestamp'] = str(timestamp)
         cache = DataCache()
         cache.put(str(self._target_uri), data)
-        self._request.setHeader('Content-Type', 'application/json')
-        self._request.write(jsonlib.dumps(data))
-        self._request.finish()
+        if not self.finished:
+            self._request.setHeader('Content-Type', 'application/json')
+            self._request.write(jsonlib.dumps(data))
+            self._request.finish()
 
     def handle_notification(self, notification):
         handler = getattr(self, '_NH_%s' % notification.name, Null)
