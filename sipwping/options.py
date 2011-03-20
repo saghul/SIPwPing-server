@@ -14,8 +14,9 @@ from sipsimple.account import ContactURIFactory
 from sipsimple.core import Request, SIPURI
 from sipsimple.core import FromHeader, ToHeader, RouteHeader
 from sipsimple.lookup import DNSLookup
-from sipsimple.util import TimestampedNotificationData
 from zope.interface import implements
+
+from sipwping.util import TimestampedNotificationData
 
 
 class SIPOptionsRequestHandler(object):
